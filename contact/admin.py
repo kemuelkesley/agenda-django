@@ -5,12 +5,14 @@ from contact import models
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ('id' ,'first_name', 'last_name', 'phone', 'email', 'created_date', 'description')
+    list_display = ('id' ,'first_name', 'last_name', 'phone', 'show',)
     #list_filter = ('created_date',)
-    search_fields = ('first_name', 'last_name', 'phone', 'email', 'description')
-    ordering = ('created_date',)
-    date_hierarchy = 'created_date'
-    #list_editable = ('phone', 'email',)
+    search_fields = ('id', 'first_name', 'last_name',)
+    ordering = ('-id',)
+    list_per_page = 10
+    list_max_show_all = 200
+    list_editable = ('first_name', 'last_name', 'show',)
+    list_display_links = ('id', 'phone',)
     # fieldsets = (
     #     ('Informações', {
     #         'fields': ('first_name', 'last_name', 'phone', 'email')
