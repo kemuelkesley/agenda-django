@@ -38,3 +38,24 @@ def contact(request, contact_id):
         'contact/contact.html',
         context
     )
+
+
+
+
+def search(request, contact_id):
+    single_contact = get_object_or_404(Contact, pk=contact_id, show=True)
+    
+
+    if single_contact is None:
+        raise Http404('Contact not found')
+
+    context = {
+        'contact': single_contact,
+    }
+
+
+    return render(
+        request,
+        'contact/contact.html',
+        context
+    )
