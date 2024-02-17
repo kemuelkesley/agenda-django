@@ -1,7 +1,9 @@
 from django.http import Http404
-
-from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+from django.shortcuts import render, get_object_or_404, redirect
 from contact.models import Contact
+
+from django.core.paginator import Paginator
 
 
 
@@ -11,10 +13,18 @@ def index(request):
         .filter(show=True)\
         .order_by('-id')
 
-    print(contacts.query)
+
+    paginator = Paginator(contacts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+
+    #Ler uma consulta do banco de dados
+    #print(contacts.query)
 
     context = {
-        'contacts': contacts,
+        'page_obj': page_obj,
+        'site_title' : 'Contacts - ',
     }
 
     return render(request, 'contact/index.html', context)
@@ -42,20 +52,36 @@ def contact(request, contact_id):
 
 
 
-def search(request, contact_id):
-    single_contact = get_object_or_404(Contact, pk=contact_id, show=True)
+def search(request):
     
+   search_value = request.GET.get('q', '').strip()
+   
+   
+   if search_value == '':
+       return redirect('contact:index')
 
-    if single_contact is None:
-        raise Http404('Contact not found')
+   contacts = Contact.objects\
+        .filter(show=True)\
+        .filter(
+            Q(first_name__icontains=search_value) |
+            Q(last_name__icontains=search_value) |
+            Q(phone__icontains=search_value) |
+            Q(email__icontains=search_value) 
+        )\
+        .order_by('-id')#[10:20]
 
-    context = {
-        'contact': single_contact,
-    }
 
+   paginator = Paginator(contacts, 10)
+   page_number = request.GET.get('page')
+   page_obj = paginator.get_page(page_number)
 
-    return render(
-        request,
-        'contact/contact.html',
-        context
-    )
+   #print(contacts.query)
+   context = {
+       'page_obj': page_obj,
+       'site_title' : 'Search - ',
+       
+       #Para mostrar o valor pesquisado no campo de busca
+       'search_value': search_value,
+   }
+
+   return render(request, 'contact/index.html', context)
