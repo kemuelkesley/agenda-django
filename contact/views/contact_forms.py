@@ -15,11 +15,16 @@ from django.core.exceptions import ValidationError as validationError
 def create(request):
 
     if request.method == 'POST':
-
+        form = ContactForm(request.POST)
+        
         context = {
-            'form' : ContactForm(request.POST)
+            'form' : form
         }
-    
+
+        if form.is_valid():
+            print('Formulario válido') 
+
+
         return render(request, 'contact/create.html', context)
 
 
